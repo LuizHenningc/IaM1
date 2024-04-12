@@ -1,0 +1,58 @@
+FUNCTION_BLOCK Tipper
+VAR_INPUT
+    Umidade : REAL;
+    Temperatura : REAL;
+END_VAR
+
+VAR_OUTPUT
+    Resultado : REAL;
+END_VAR
+
+FUZZIFY Umidade
+    TERM Umida := (0, 0) (33, 1) (66, 1) (100, 0);
+    TERM Seca := (0, 1) (33, 0) (66, 0) (100, 1);
+    TERM Molhada := (0, 0) (33, 0) (66, 1) (100, 1);
+END_FUZZIFY
+
+FUZZIFY Temperatura
+    TERM MuitoFria := (0, 1) (30, 1) (60, 0);
+    TERM Fria := (30, 0) (60, 1) (90, 0);
+    TERM Moderada := (60, 0) (90, 1) (120, 0);
+    TERM Quente := (90, 0) (120, 1) (150, 0);
+    TERM MuitoQuente := (120, 0) (150, 1) (180, 1);
+END_FUZZIFY
+
+DEFUZZIFY Resultado
+    TERM PneuChuva := (0, 1) (20, 1) (40, 0);
+    TERM PneuDuro := (20, 0) (40, 1) (60, 0);
+    TERM PneuMedio := (40, 0) (60, 1) (80, 0);
+    TERM PneuMacio := (60, 0) (80, 1) (100, 0);
+    TERM PneuMuitoMacio := (80, 0) (100, 1);
+END_DEFUZZIFY
+
+
+RULEBLOCK Main
+    AND : MIN;
+    OR : MAX;
+    ACT : MIN;
+    ACCU : MAX;
+
+    RULE 1 : IF (Umidade IS Umida) AND (Temperatura IS MuitoFria) THEN Resultado IS PneuMedio;
+    RULE 2 : IF (Umidade IS Umida) AND (Temperatura IS Fria) THEN Resultado IS PneuMedio;
+    RULE 3 : IF (Umidade IS Umida) AND (Temperatura IS Moderada) THEN Resultado IS PneuMedio;
+    RULE 4 : IF (Umidade IS Umida) AND (Temperatura IS Quente) THEN Resultado IS PneuMacio;
+    RULE 5 : IF (Umidade IS Umida) AND (Temperatura IS MuitoQuente) THEN Resultado IS PneuMacio;
+
+    RULE 6 : IF (Umidade IS Seca) AND (Temperatura IS MuitoFria) THEN Resultado IS PneuDuro;
+    RULE 7 : IF (Umidade IS Seca) AND (Temperatura IS Fria) THEN Resultado IS PneuDuro;
+    RULE 8 : IF (Umidade IS Seca) AND (Temperatura IS Moderada) THEN Resultado IS PneuMedio;
+    RULE 9 : IF (Umidade IS Seca) AND (Temperatura IS Quente) THEN Resultado IS PneuMacio;
+    RULE 10 : IF (Umidade IS Seca) AND (Temperatura IS MuitoQuente) THEN Resultado IS PneuMuitoMacio;
+
+    RULE 11 : IF (Umidade IS Molhada) AND (Temperatura IS MuitoFria) THEN Resultado IS PneuChuva;
+    RULE 12 : IF (Umidade IS Molhada) AND (Temperatura IS Fria) THEN Resultado IS PneuChuva;
+    RULE 13 : IF (Umidade IS Molhada) AND (Temperatura IS Moderada) THEN Resultado IS PneuChuva;
+    RULE 14 : IF (Umidade IS Molhada) AND (Temperatura IS Quente) THEN Resultado IS PneuChuva;
+    RULE 15 : IF (Umidade IS Molhada) AND (Temperatura IS MuitoQuente) THEN Resultado IS PneuMuitoMacio;
+END_RULEBLOCK
+END_FUNCTION_BLOCK
